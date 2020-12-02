@@ -1,4 +1,7 @@
-use aoc_2020::{self, password};
+use aoc_2020::{
+    self,
+    password::{self, Policy},
+};
 
 fn main() {
     let input_file = std::env::args().nth(1).unwrap();
@@ -15,8 +18,8 @@ fn count_valid_passwords(lines: Vec<String>) -> usize {
     lines
         .into_iter()
         .map(|l| {
-            let (policy, password) = password::parse_password_and_policy(&l).unwrap();
-            policy.validate_toboggan_password(&password)
+            let (policy, password) = password::parse_toboggan_policy_and_password(&l).unwrap();
+            policy.validate(&password)
         })
         .filter(|&b| b == true)
         .count()

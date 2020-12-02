@@ -2,7 +2,7 @@ use std::{convert::TryFrom, str::FromStr};
 
 /// A policy describing valid passwords
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub struct PasswordPolicy {
+struct PasswordPolicy {
     /// The lowest number of occurrences of `letter`
     lowest: u8,
     /// The highest number of occurrences of `letter`
@@ -32,29 +32,9 @@ impl PasswordPolicy {
     pub fn highest(&self) -> u8 {
         self.highest
     }
+
     pub fn letter(&self) -> char {
         self.letter
-    }
-
-    /// The sled rental place validates password by ensuring that the count of `letter` in `password` is between `lowest` and `highest` (inclusive)
-    pub fn validate_sled_rental_password(&self, password: &str) -> bool {
-        let letter_count = password.chars().filter(|&c| c == self.letter()).count();
-
-        let letter_count = match u8::try_from(letter_count) {
-            Ok(l) => l,
-            Err(_) => {
-                return false;
-            }
-        };
-
-        letter_count >= self.lowest() && letter_count <= self.highest()
-    }
-
-    pub fn validate_toboggan_password(&self, password: &str) -> bool {
-        let chars: Vec<char> = password.chars().collect();
-
-        (chars[self.lowest() as usize - 1] == self.letter())
-            ^ (chars[self.highest() as usize - 1] == self.letter())
     }
 }
 
@@ -98,17 +78,135 @@ impl FromStr for PasswordPolicy {
 }
 
 /// Expects a string like "1-3 a: aaa"
-pub fn parse_password_and_policy(input: &str) -> Result<(PasswordPolicy, String), ()> {
+pub fn parse_sled_policy_and_password(input: &str) -> Result<(SledPasswordPolicy, String), ()> {
     let parts: Vec<_> = input.split(": ").collect();
 
     if parts.len() != 2 {
         return Err(());
     }
 
-    let policy = PasswordPolicy::from_str(parts[0])?;
+    let policy = SledPasswordPolicy::from_str(parts[0])?;
     let password = parts[1].to_owned();
 
     Ok((policy, password))
+}
+
+/// Expects a string like "1-3 a: aaa"
+pub fn parse_toboggan_policy_and_password(
+    input: &str,
+) -> Result<(TobogganPasswordPolicy, String), ()> {
+    let parts: Vec<_> = input.split(": ").collect();
+
+    if parts.len() != 2 {
+        return Err(());
+    }
+
+    let policy = TobogganPasswordPolicy::from_str(parts[0])?;
+    let password = parts[1].to_owned();
+
+    Ok((policy, password))
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct SledPasswordPolicy {
+    policy: PasswordPolicy,
+}
+
+impl SledPasswordPolicy {
+    pub fn new(lowest: u8, highest: u8, letter: char) -> Self {
+        let policy = PasswordPolicy::new(lowest, highest, letter);
+        Self { policy }
+    }
+
+    fn policy(&self) -> &PasswordPolicy {
+        &self.policy
+    }
+
+    /// The sled rental place validates password by ensuring that the count of `letter` in `password` is between `lowest` and `highest` (inclusive)
+    fn validate_sled_rental_password(&self, password: &str) -> bool {
+        let letter_count = password
+            .chars()
+            .filter(|&c| c == self.policy().letter())
+            .count();
+
+        let letter_count = match u8::try_from(letter_count) {
+            Ok(l) => l,
+            Err(_) => {
+                return false;
+            }
+        };
+
+        letter_count >= self.policy().lowest() && letter_count <= self.policy().highest()
+    }
+}
+
+impl From<PasswordPolicy> for SledPasswordPolicy {
+    fn from(policy: PasswordPolicy) -> Self {
+        Self { policy }
+    }
+}
+
+impl FromStr for SledPasswordPolicy {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let policy = PasswordPolicy::from_str(s)?;
+        Ok(Self::from(policy))
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct TobogganPasswordPolicy {
+    policy: PasswordPolicy,
+}
+
+impl TobogganPasswordPolicy {
+    pub fn new(index_a: usize, index_b: usize, letter: char) -> Self {
+        let policy = PasswordPolicy::new(index_a as u8, index_b as u8, letter);
+        Self { policy }
+    }
+
+    fn policy(&self) -> &PasswordPolicy {
+        &self.policy
+    }
+
+    fn validate_toboggan_password(&self, password: &str) -> bool {
+        let chars: Vec<char> = password.chars().collect();
+
+        (chars[self.policy().lowest() as usize - 1] == self.policy().letter())
+            ^ (chars[self.policy().highest() as usize - 1] == self.policy().letter())
+    }
+}
+
+impl From<PasswordPolicy> for TobogganPasswordPolicy {
+    fn from(policy: PasswordPolicy) -> Self {
+        Self { policy }
+    }
+}
+
+impl FromStr for TobogganPasswordPolicy {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let policy = PasswordPolicy::from_str(s)?;
+        Ok(Self::from(policy))
+    }
+}
+
+pub trait Policy {
+    fn validate(&self, input: &str) -> bool;
+}
+
+impl Policy for SledPasswordPolicy {
+    fn validate(&self, input: &str) -> bool {
+        self.validate_sled_rental_password(input)
+    }
+}
+
+impl Policy for TobogganPasswordPolicy {
+    fn validate(&self, input: &str) -> bool {
+        self.validate_toboggan_password(input)
+    }
 }
 
 #[cfg(test)]
@@ -134,28 +232,20 @@ mod tests {
     }
 
     #[test]
-    fn parse_password_and_policy_test() {
-        assert_eq!(
-            parse_password_and_policy("1-3 a: abcde").unwrap(),
-            (PasswordPolicy::new(1, 3, 'a'), "abcde".to_string())
-        )
-    }
-
-    #[test]
     fn validate_sled_rental_password_test() {
-        let policy = PasswordPolicy::new(1, 3, 'a');
-        assert!(policy.validate_sled_rental_password("abcde"));
+        let policy = SledPasswordPolicy::new(1, 3, 'a');
+        assert!(policy.validate("abcde"));
 
-        let policy = PasswordPolicy::new(1, 3, 'b');
-        assert!(!policy.validate_sled_rental_password("cdefg"));
+        let policy = SledPasswordPolicy::new(1, 3, 'b');
+        assert!(!policy.validate("cdefg"));
     }
 
     #[test]
     fn validate_toboggan_password_test() {
-        let policy = PasswordPolicy::new(1, 3, 'a');
+        let policy = TobogganPasswordPolicy::new(1, 3, 'a');
         assert!(policy.validate_toboggan_password("abcde"));
 
-        let policy = PasswordPolicy::new(1, 3, 'b');
+        let policy = TobogganPasswordPolicy::new(1, 3, 'b');
         assert!(!policy.validate_toboggan_password("cdefg"));
     }
 }
