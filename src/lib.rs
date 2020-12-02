@@ -1,3 +1,5 @@
+pub mod password;
+
 use std::{
     fs::File,
     io::{self, BufRead},
@@ -10,12 +12,4 @@ where
 {
     let file = File::open(filename)?;
     Ok(io::BufReader::new(file).lines())
-}
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
 }
