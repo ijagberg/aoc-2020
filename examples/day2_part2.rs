@@ -16,7 +16,7 @@ fn count_valid_passwords(lines: Vec<String>) -> usize {
         .into_iter()
         .map(|l| {
             let (policy, password) = password::parse_password_and_policy(&l).unwrap();
-            policy.validate_sled_rental_password(&password)
+            policy.validate_toboggan_password(&password)
         })
         .filter(|&b| b == true)
         .count()

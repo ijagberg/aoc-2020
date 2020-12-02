@@ -36,7 +36,8 @@ impl PasswordPolicy {
         self.letter
     }
 
-    pub fn validate_password(&self, password: &str) -> bool {
+    /// The sled rental place validates password by ensuring that the count of `letter` in `password` is between `lowest` and `highest` (inclusive)
+    pub fn validate_sled_rental_password(&self, password: &str) -> bool {
         let letter_count = password.chars().filter(|&c| c == self.letter()).count();
 
         let letter_count = match u8::try_from(letter_count) {
@@ -47,6 +48,13 @@ impl PasswordPolicy {
         };
 
         letter_count >= self.lowest() && letter_count <= self.highest()
+    }
+
+    pub fn validate_toboggan_password(&self, password: &str) -> bool {
+        let chars: Vec<char> = password.chars().collect();
+
+        (chars[self.lowest() as usize - 1] == self.letter())
+            ^ (chars[self.highest() as usize - 1] == self.letter())
     }
 }
 
@@ -134,11 +142,20 @@ mod tests {
     }
 
     #[test]
-    fn validate_password_test() {
+    fn validate_sled_rental_password_test() {
         let policy = PasswordPolicy::new(1, 3, 'a');
-        assert!(policy.validate_password("abcde"));
-        
+        assert!(policy.validate_sled_rental_password("abcde"));
+
         let policy = PasswordPolicy::new(1, 3, 'b');
-        assert!(!policy.validate_password("cdefg"));
+        assert!(!policy.validate_sled_rental_password("cdefg"));
+    }
+
+    #[test]
+    fn validate_toboggan_password_test() {
+        let policy = PasswordPolicy::new(1, 3, 'a');
+        assert!(policy.validate_toboggan_password("abcde"));
+
+        let policy = PasswordPolicy::new(1, 3, 'b');
+        assert!(!policy.validate_toboggan_password("cdefg"));
     }
 }
