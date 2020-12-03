@@ -1,5 +1,5 @@
-pub mod password;
 pub mod grid;
+pub mod password;
 
 use std::{
     fs::File,

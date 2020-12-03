@@ -1,6 +1,6 @@
 use std::convert::TryFrom;
 
-/// A two dimensional grid 
+/// A two dimensional grid
 pub struct Grid<T> {
     width: usize,
     height: usize,
@@ -102,7 +102,7 @@ impl TryFrom<char> for Cell {
 }
 
 /// An _infinite_ two dimensional grid
-/// 
+///
 /// This grid can be indexed on a column that is larger than the actual width of the grid.
 /// It does this by pretending that the grid is repeated infinitely to the right.
 /// The item at index `width+1` is the same as the item at index `1`
@@ -156,8 +156,8 @@ impl TobogganMap {
         Self { grid: inf_grid }
     }
 
-    /// Count the number of tree cells you would collide with if you were to travel from `(start_row, start_col)` 
-    /// with a slope `(right_step, down_step)`. I.e. repeatedly taking `right_step` steps horizontally, and `down_step` steps vertically, 
+    /// Count the number of tree cells you would collide with if you were to travel from `(start_row, start_col)`
+    /// with a slope `(right_step, down_step)`. I.e. repeatedly taking `right_step` steps horizontally, and `down_step` steps vertically,
     /// until you reach the bottom of the map.
     pub fn count_tree_collision(
         &self,
@@ -244,6 +244,6 @@ mod tests {
             .map(|&(right, down)| map.count_tree_collision(0, 0, right, down))
             .collect();
 
-        assert_eq!(vec![2,7,3,4,2], trees);
+        assert_eq!(vec![2, 7, 3, 4, 2], trees);
     }
 }
