@@ -1,5 +1,6 @@
 use std::convert::TryFrom;
 
+/// A two dimensional grid 
 pub struct Grid<T> {
     width: usize,
     height: usize,
@@ -7,6 +8,10 @@ pub struct Grid<T> {
 }
 
 impl<T> Grid<T> {
+    /// Constructs a new `Grid`
+    ///
+    /// # Panics
+    /// If `width * height != cells.len()`
     pub fn new(width: usize, height: usize, cells: Vec<T>) -> Self {
         assert!(width * height == cells.len());
         Self {
@@ -16,14 +21,19 @@ impl<T> Grid<T> {
         }
     }
 
+    /// Returns the width of the grid (number of columns)
     pub fn width(&self) -> usize {
         self.width
     }
 
+    /// Returns the height of the grid (number of rows)
     pub fn height(&self) -> usize {
         self.height
     }
 
+    /// Attempt to get the item in row `row`, column `col`
+    ///
+    /// Returns `None` if `row` or `col` is outside the grid (less than 0, larger than the height or width of the grid)
     pub fn get<Idx>(&self, row: Idx, col: Idx) -> Option<&T>
     where
         usize: TryFrom<Idx>,
@@ -91,11 +101,17 @@ impl TryFrom<char> for Cell {
     }
 }
 
+/// An _infinite_ two dimensional grid
+/// 
+/// This grid can be indexed on a column that is larger than the actual width of the grid.
+/// It does this by pretending that the grid is repeated infinitely to the right.
+/// The item at index `width+1` is the same as the item at index `1`
 pub struct InfiniteGrid<T> {
     grid: Grid<T>,
 }
 
 impl<T> InfiniteGrid<T> {
+    /// Construct a new infinite grid by repeating `grid`
     pub fn new(grid: Grid<T>) -> Self {
         Self { grid }
     }
@@ -121,6 +137,7 @@ impl<T> InfiniteGrid<T> {
     }
 }
 
+/// A map of a forest a toboggan can travel through
 pub struct TobogganMap {
     grid: InfiniteGrid<Cell>,
 }
@@ -139,6 +156,9 @@ impl TobogganMap {
         Self { grid: inf_grid }
     }
 
+    /// Count the number of tree cells you would collide with if you were to travel from `(start_row, start_col)` 
+    /// with a slope `(right_step, down_step)`. I.e. repeatedly taking `right_step` steps horizontally, and `down_step` steps vertically, 
+    /// until you reach the bottom of the map.
     pub fn count_tree_collision(
         &self,
         start_row: usize,
