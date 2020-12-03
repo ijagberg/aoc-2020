@@ -1,4 +1,5 @@
 pub mod password;
+pub mod grid;
 
 use std::{
     fs::File,
@@ -6,6 +7,7 @@ use std::{
     path::Path,
 };
 
+/// Returns an iterator over the lines of a given file
 pub fn read_lines_from_file<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
 where
     P: AsRef<Path>,

@@ -1,0 +1,229 @@
+use std::convert::TryFrom;
+
+pub struct Grid<T> {
+    width: usize,
+    height: usize,
+    cells: Vec<T>,
+}
+
+impl<T> Grid<T> {
+    pub fn new(width: usize, height: usize, cells: Vec<T>) -> Self {
+        assert!(width * height == cells.len());
+        Self {
+            width,
+            height,
+            cells,
+        }
+    }
+
+    pub fn width(&self) -> usize {
+        self.width
+    }
+
+    pub fn height(&self) -> usize {
+        self.height
+    }
+
+    pub fn get<Idx>(&self, row: Idx, col: Idx) -> Option<&T>
+    where
+        usize: TryFrom<Idx>,
+    {
+        let row = usize::try_from(row).ok()?;
+        let col = usize::try_from(col).ok()?;
+
+        let linear_idx = self.linear_idx(row, col)?;
+
+        Some(&self.cells[linear_idx])
+    }
+
+    fn linear_idx(&self, row: usize, col: usize) -> Option<usize> {
+        if row >= self.height() || col >= self.width() {
+            None
+        } else {
+            Some(row * self.width() + col)
+        }
+    }
+}
+
+pub fn parse_toboggan_map(lines: &[String]) -> TobogganMap {
+    let height = lines.len();
+
+    if height == 0 {
+        return TobogganMap::from_grid(Grid::new(0, 0, Vec::new()));
+    }
+
+    let width = lines[0].len();
+
+    let mut cells = Vec::new();
+    for (row, line) in lines.iter().enumerate() {
+        let chars_in_line: Vec<_> = line.chars().collect();
+        let line_len = chars_in_line.len();
+        if line_len != width {
+            panic!(
+                "invalid width of line {}, should be {}, was {}",
+                row, width, line_len
+            );
+        }
+        for c in chars_in_line {
+            cells.push(
+                Cell::try_from(c).expect(&format!("could not create a Cell from char: '{}'", c)),
+            )
+        }
+    }
+
+    TobogganMap::from_grid(Grid::new(width, height, cells))
+}
+
+pub enum Cell {
+    Empty,
+    Tree,
+}
+
+impl TryFrom<char> for Cell {
+    type Error = ();
+
+    fn try_from(value: char) -> Result<Self, Self::Error> {
+        Ok(match value {
+            '#' => Cell::Tree,
+            '.' => Cell::Empty,
+            _ => return Err(()),
+        })
+    }
+}
+
+pub struct InfiniteGrid<T> {
+    grid: Grid<T>,
+}
+
+impl<T> InfiniteGrid<T> {
+    pub fn new(grid: Grid<T>) -> Self {
+        Self { grid }
+    }
+
+    fn grid(&self) -> &Grid<T> {
+        &self.grid
+    }
+
+    pub fn get(&self, row: usize, col: usize) -> Option<&T> {
+        let col = col % self.grid().width();
+
+        self.grid().get(row, col)
+    }
+
+    pub fn iter_from<'a>(
+        &'a self,
+        row: usize,
+        col: usize,
+        right: usize,
+        down: usize,
+    ) -> SlopeIter<'a, T> {
+        SlopeIter::new((row, col), right, down, &self)
+    }
+}
+
+pub struct TobogganMap {
+    grid: InfiniteGrid<Cell>,
+}
+
+impl TobogganMap {
+    pub fn new(grid: InfiniteGrid<Cell>) -> Self {
+        Self { grid }
+    }
+
+    fn grid(&self) -> &InfiniteGrid<Cell> {
+        &self.grid
+    }
+
+    pub fn from_grid(grid: Grid<Cell>) -> Self {
+        let inf_grid = InfiniteGrid::new(grid);
+        Self { grid: inf_grid }
+    }
+
+    pub fn count_tree_collision(
+        &self,
+        start_row: usize,
+        start_col: usize,
+        right_step: usize,
+        down_step: usize,
+    ) -> usize {
+        self.grid()
+            .iter_from(start_row, start_col, right_step, down_step)
+            .filter(|&(row, col)| matches!(self.grid().get(row, col), Some(Cell::Tree)))
+            .count()
+    }
+}
+
+pub struct SlopeIter<'a, T> {
+    current_pos: (usize, usize),
+    right: usize,
+    down: usize,
+    grid: &'a InfiniteGrid<T>,
+}
+
+impl<'a, T> SlopeIter<'a, T> {
+    fn new(
+        current_pos: (usize, usize),
+        right: usize,
+        down: usize,
+        grid: &'a InfiniteGrid<T>,
+    ) -> Self {
+        Self {
+            current_pos,
+            right,
+            down,
+            grid,
+        }
+    }
+}
+
+impl<'a, T> Iterator for SlopeIter<'a, T> {
+    type Item = (usize, usize);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let cur = self.current_pos;
+        let next = (cur.0 + self.down, cur.1 + self.right);
+
+        if self.grid.get(next.0, next.1).is_some() {
+            self.current_pos = next;
+            Some(next)
+        } else {
+            None
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn example_data() -> TobogganMap {
+        let chars: Vec<char> = "..##.......#...#...#...#....#..#...#.#...#.#.#...##..#...#.##......#.#.#....#.#........##.##...#...#...##....#.#..#...#.#".chars().collect();
+        let lines: Vec<_> = chars
+            .chunks(11)
+            .map(|c| c.iter().collect::<String>())
+            .collect();
+
+        parse_toboggan_map(&lines)
+    }
+
+    #[test]
+    fn single_slope_test() {
+        let toboggan_map = example_data();
+
+        assert_eq!(toboggan_map.count_tree_collision(0, 0, 3, 1), 7);
+    }
+
+    #[test]
+    fn multiple_slopes_test() {
+        let map = example_data();
+
+        const SLOPES: [(usize, usize); 5] = [(1, 1), (3, 1), (5, 1), (7, 1), (1, 2)];
+
+        let trees: Vec<usize> = SLOPES
+            .iter()
+            .map(|&(right, down)| map.count_tree_collision(0, 0, right, down))
+            .collect();
+
+        assert_eq!(vec![2,7,3,4,2], trees);
+    }
+}

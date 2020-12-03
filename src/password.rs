@@ -1,36 +1,27 @@
 use std::{convert::TryFrom, str::FromStr};
 
-/// A policy describing valid passwords
 #[derive(Debug, Clone, Copy, PartialEq)]
 struct PasswordPolicy {
-    /// The lowest number of occurrences of `letter`
-    lowest: u8,
-    /// The highest number of occurrences of `letter`
-    highest: u8,
+    a: u8,
+    b: u8,
     letter: char,
 }
 
 impl PasswordPolicy {
     /// Create a new password policy
     /// # Panics
-    /// * If `lowest` > `highest`
     /// * If `letter` is not alphabetic
-    pub fn new(lowest: u8, highest: u8, letter: char) -> Self {
-        assert!(lowest <= highest);
+    pub fn new(a: u8, b: u8, letter: char) -> Self {
         assert!(letter.is_alphabetic());
-        Self {
-            lowest,
-            highest,
-            letter,
-        }
+        Self { a, b, letter }
     }
 
-    pub fn lowest(&self) -> u8 {
-        self.lowest
+    pub fn a(&self) -> u8 {
+        self.a
     }
 
-    pub fn highest(&self) -> u8 {
-        self.highest
+    pub fn b(&self) -> u8 {
+        self.b
     }
 
     pub fn letter(&self) -> char {
@@ -114,6 +105,7 @@ pub struct SledPasswordPolicy {
 
 impl SledPasswordPolicy {
     pub fn new(lowest: u8, highest: u8, letter: char) -> Self {
+        assert!(lowest <= highest);
         let policy = PasswordPolicy::new(lowest, highest, letter);
         Self { policy }
     }
@@ -136,7 +128,7 @@ impl SledPasswordPolicy {
             }
         };
 
-        letter_count >= self.policy().lowest() && letter_count <= self.policy().highest()
+        letter_count >= self.policy().a() && letter_count <= self.policy().b()
     }
 }
 
@@ -162,7 +154,7 @@ pub struct TobogganPasswordPolicy {
 
 impl TobogganPasswordPolicy {
     pub fn new(index_a: usize, index_b: usize, letter: char) -> Self {
-        let policy = PasswordPolicy::new(index_a as u8, index_b as u8, letter);
+        let policy = PasswordPolicy::new(index_a as u8 - 1, index_b as u8 - 1, letter);
         Self { policy }
     }
 
@@ -170,11 +162,15 @@ impl TobogganPasswordPolicy {
         &self.policy
     }
 
+    /// The toboggan place validates password by ensuring that `letter` occurs at _either_ `index_a` or `index_b`
+    /// # Example
+    /// * "1-3 a: abcde" is valid because position 1 (1-indexed) is 'a', and position 3 is not 'a'
+    /// * "1-3 b: cdefg" is invalid because neither character 1 nor 3 is 'b'
     fn validate_toboggan_password(&self, password: &str) -> bool {
         let chars: Vec<char> = password.chars().collect();
 
-        (chars[self.policy().lowest() as usize - 1] == self.policy().letter())
-            ^ (chars[self.policy().highest() as usize - 1] == self.policy().letter())
+        (chars[self.policy().a() as usize] == self.policy().letter())
+            ^ (chars[self.policy().b() as usize] == self.policy().letter())
     }
 }
 
