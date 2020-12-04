@@ -1,4 +1,4 @@
-use std::{collections::HashSet, str::FromStr};
+use std::{collections::HashSet, fmt::Display, num::ParseIntError, str::FromStr};
 
 mod consts {
     pub const BIRTH_YEAR_ABBR: &str = "byr";
@@ -28,6 +28,7 @@ mod consts {
     pub const OTHER: &str = "oth";
 }
 
+/// Represents a passport with fields identifying a person
 #[derive(Debug, Clone, PartialEq)]
 pub struct Passport {
     fields: Vec<Field>,
@@ -38,6 +39,10 @@ impl Passport {
         Self { fields }
     }
 
+    /// Validate the passport
+    ///
+    /// A passport is valid if it contains all required fields (all variants of the `Field` enum except `CountryId`)
+    /// and all fields are valid themselves (can't have a year with 3 digits for example)
     pub fn is_valid(&self) -> bool {
         use consts::*;
         const EXPECTED_DISCRS: [u8; 7] = [
@@ -73,6 +78,7 @@ pub enum Field {
     CountryId(String),
 }
 
+/// A measurement of height, with a value and a unit
 #[derive(Debug, Clone, PartialEq)]
 pub struct Height {
     value: u32,
@@ -80,14 +86,36 @@ pub struct Height {
 }
 
 impl FromStr for Height {
-    type Err = ();
+    type Err = ParseHeightError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         // 150cm
-        let unit: HeightUnit = s[s.len() - 2..].parse()?;
-        let value: u32 = s[..s.len() - 2].parse().map_err(|_| ())?;
+        let unit: HeightUnit = s[s.len() - 2..]
+            .parse()
+            .map_err(ParseHeightError::InvalidUnit)?;
+
+        let value: u32 = s[..s.len() - 2]
+            .parse()
+            .map_err(ParseHeightError::InvalidValue)?;
 
         Ok(Height { value, unit })
+    }
+}
+
+#[derive(Debug)]
+pub enum ParseHeightError {
+    InvalidUnit(ParseHeightUnitError),
+    InvalidValue(ParseIntError),
+}
+
+impl Display for ParseHeightError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let output = match self {
+            ParseHeightError::InvalidUnit(e) => format!("invalid unit: '{:?}'", e),
+            ParseHeightError::InvalidValue(e) => format!("invalid value: '{:?}'", e),
+        };
+
+        write!(f, "failed to parse height: {}", output)
     }
 }
 
@@ -97,14 +125,19 @@ pub enum HeightUnit {
     In,
 }
 
+#[derive(Debug)]
+pub enum ParseHeightUnitError {
+    Invalid,
+}
+
 impl FromStr for HeightUnit {
-    type Err = ();
+    type Err = ParseHeightUnitError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(match s {
             "cm" => HeightUnit::Cm,
             "in" => HeightUnit::In,
-            _ => return Err(()),
+            _ => return Err(ParseHeightUnitError::Invalid),
         })
     }
 }
@@ -127,13 +160,19 @@ impl Field {
 
     fn is_valid(&self) -> bool {
         match self {
+            // birth years are only valid between 1920 and 2002
             Field::BirthYear(y) => y >= &1920 && y <= &2002,
+            // issue years are only valid between 2010 and 2020
             Field::IssueYear(y) => y >= &2010 && y <= &2020,
+            // expiration years are only valid between 2020 and 2030
             Field::ExpirationYear(y) => y >= &2020 && y <= &2030,
+            // heights are only valid if the unit is "cm" and the value is between 150 and 193
+            // or if the unit is "in" and the value is between 59 and 76
             Field::Height(h) => match h.unit {
                 HeightUnit::Cm => h.value >= 150 && h.value <= 193,
                 HeightUnit::In => h.value >= 59 && h.value <= 76,
             },
+            // hair color is only valid if it is a string beginning with "#", followed by exactly 6 characters 0-9 or a-f
             Field::HairColor(color) => {
                 color.len() == 7
                     && &color[0..1] == "#"
@@ -145,8 +184,11 @@ impl Field {
                             })
                     })
             }
+            // eye color is always valid if we have managed to create a variant of the EyeColor enum
             Field::EyeColor(_eye_color) => true,
+            // passport ids are only valid if the length is 9 and all characters in the string are numeric
             Field::PassportId(id) => id.len() == 9 && id.chars().all(|c| c.is_numeric()),
+            // country ids are always valid
             Field::CountryId(_id) => true,
         }
     }
