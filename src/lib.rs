@@ -1,5 +1,6 @@
 pub mod grid;
 pub mod password;
+pub mod passport;
 
 use std::{
     fs::File,
