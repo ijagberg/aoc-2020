@@ -131,12 +131,12 @@ impl FromStr for Seating {
 
         let row = row
             .chars()
-            .map(|c| FrontBack::try_from(c))
+            .map(FrontBack::try_from)
             .collect::<Result<Vec<FrontBack>, _>>()?;
 
         let column = column
             .chars()
-            .map(|c| LeftRight::try_from(c))
+            .map(LeftRight::try_from)
             .collect::<Result<Vec<LeftRight>, _>>()?;
 
         Ok(Seating::new(

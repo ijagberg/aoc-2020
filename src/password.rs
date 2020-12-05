@@ -37,7 +37,7 @@ impl FromStr for PasswordPolicy {
         // "1-3 a"
         // meaning at least 1 a, at most 3 a's
 
-        let parts: Vec<_> = s.split(" ").collect();
+        let parts: Vec<_> = s.split(' ').collect();
 
         if parts.len() != 2 {
             return Err(());
@@ -45,7 +45,7 @@ impl FromStr for PasswordPolicy {
 
         // parts[0] should be "1-3" or similar
         let low_high = parts[0]
-            .split("-")
+            .split('-')
             .map(|p| p.parse().map_err(|_| ()))
             .collect::<Result<Vec<u8>, ()>>()?;
 

@@ -76,7 +76,8 @@ pub fn parse_toboggan_map(lines: &[String]) -> TobogganMap {
         }
         for c in chars_in_line {
             cells.push(
-                Cell::try_from(c).expect(&format!("could not create a Cell from char: '{}'", c)),
+                Cell::try_from(c)
+                    .unwrap_or_else(|_| panic!("could not create a Cell from char: '{}'", c)),
             )
         }
     }
@@ -126,13 +127,7 @@ impl<T> InfiniteGrid<T> {
         self.grid().get(row, col)
     }
 
-    pub fn iter_from<'a>(
-        &'a self,
-        row: usize,
-        col: usize,
-        right: usize,
-        down: usize,
-    ) -> SlopeIter<'a, T> {
+    pub fn iter_from(&self, row: usize, col: usize, right: usize, down: usize) -> SlopeIter<T> {
         SlopeIter::new((row, col), right, down, &self)
     }
 }
