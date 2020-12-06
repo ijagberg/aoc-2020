@@ -2,6 +2,7 @@ pub mod grid;
 pub mod password;
 pub mod passport;
 pub mod seating;
+pub mod questions;
 
 use std::{
     fs::File,
