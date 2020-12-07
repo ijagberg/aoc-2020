@@ -5,7 +5,7 @@ use std::{
 pub fn get_rules_from_file(file: &str) -> BagRules {
     let contents = std::fs::read_to_string(file).unwrap();
     let mut rules = BagRules::new();
-    for line in contents.split("\n").filter(|l| !l.trim().is_empty()) {
+    for line in contents.split('\n').filter(|l| !l.trim().is_empty()) {
         let rule = line.parse().unwrap();
         rules.add_rule(rule);
     }
@@ -36,7 +36,7 @@ impl BagRules {
         let rules = self.rules();
 
         let mut count = 0;
-        for (outer, _inners) in rules {
+        for outer in rules.keys() {
             if self.can_contain_bag(outer, target) {
                 count += 1;
             }
@@ -82,6 +82,12 @@ impl BagRules {
         }
 
         count
+    }
+}
+
+impl Default for BagRules {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

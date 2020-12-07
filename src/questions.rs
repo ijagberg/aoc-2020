@@ -16,7 +16,7 @@ pub fn count_intersection_yes(lines: Vec<String>) -> usize {
         .into_iter()
         .map(|group| {
             let sets: Vec<HashSet<char>> = group
-                .into_iter()
+                .iter()
                 .map(|g| g.chars().collect::<HashSet<char>>())
                 .collect();
             let mut intersection = sets[0].clone();
