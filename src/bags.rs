@@ -2,19 +2,7 @@ use std::{
     collections::HashMap, collections::HashSet, collections::VecDeque, fmt::Display, str::FromStr,
 };
 
-pub fn solve_part1_from_input_file(file: &str) -> u32 {
-    let rules = get_rules_from_file(file);
-
-    rules.how_many_can_contain("shiny gold")
-}
-
-pub fn solve_part2_from_input_file(file: &str) -> u32 {
-    let rules = get_rules_from_file(file);
-
-    rules.count_bags_inside("shiny gold")
-}
-
-fn get_rules_from_file(file: &str) -> BagRules {
+pub fn get_rules_from_file(file: &str) -> BagRules {
     let contents = std::fs::read_to_string(file).unwrap();
     let mut rules = BagRules::new();
     for line in contents.split("\n").filter(|l| !l.trim().is_empty()) {
@@ -81,7 +69,7 @@ impl BagRules {
         false
     }
 
-    fn count_bags_inside(&self, start: &str) -> u32 {
+    pub fn count_bags_inside(&self, start: &str) -> u32 {
         let rules = self.rules();
 
         let mut count = 0;
