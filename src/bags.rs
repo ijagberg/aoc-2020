@@ -176,7 +176,8 @@ mod tests {
 
     #[test]
     fn solve_from_input_file_test() {
-        assert_eq!(solve_part1_from_input_file("inputs/day7_example.txt"), 4)
+        let rules = get_rules_from_file("inputs/day7_example.txt");
+        assert_eq!(rules.how_many_can_contain("shiny gold"), 4)
     }
 
     #[test]
