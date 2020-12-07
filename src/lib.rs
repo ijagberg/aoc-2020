@@ -3,6 +3,7 @@ pub mod password;
 pub mod passport;
 pub mod seating;
 pub mod questions;
+pub mod bags;
 
 use std::{
     fs::File,
