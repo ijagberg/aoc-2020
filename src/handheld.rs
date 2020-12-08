@@ -28,6 +28,14 @@ impl Handheld {
         self.curr
     }
 
+    fn move_curr_by(&mut self, offset: isize) {
+        if offset < 0 {
+            self.curr -= offset.abs() as usize;
+        } else {
+            self.curr += offset as usize;
+        }
+    }
+
     pub fn accumulator(&self) -> i32 {
         self.accumulator
     }
@@ -42,17 +50,13 @@ impl Handheld {
         match (current_instruction.op(), current_instruction.arg()) {
             (Operation::Acc, arg) => {
                 self.add_to_acc(arg);
-                self.curr += 1;
+                self.move_curr_by(1);
             }
             (Operation::Jmp, arg) => {
-                if arg < 0 {
-                    self.curr -= arg.abs() as usize;
-                } else {
-                    self.curr += arg as usize;
-                }
+                self.move_curr_by(arg as isize);
             }
             (Operation::Nop, _arg) => {
-                self.curr += 1;
+                self.move_curr_by(1);
             }
         }
     }
@@ -85,7 +89,7 @@ impl Handheld {
                 let new_instr = Instruction::nop(instr.arg());
                 clone.set_instruction(idx, new_instr);
 
-                if let Ok(_) = clone.step_until_termination() {
+                if clone.step_until_termination().is_ok() {
                     self.set_instruction(idx, new_instr);
                     return Ok(());
                 }
@@ -101,7 +105,7 @@ impl Handheld {
 
                 clone.set_instruction(idx, new_instr);
 
-                if let Ok(_) = clone.step_until_termination() {
+                if clone.step_until_termination().is_ok() {
                     self.set_instruction(idx, new_instr);
                     return Ok(());
                 }
@@ -139,6 +143,7 @@ struct Instruction {
     arg: i32,
 }
 
+#[allow(unused)]
 impl Instruction {
     fn new(op: Operation, arg: i32) -> Self {
         Self { op, arg }
@@ -184,10 +189,10 @@ impl FromStr for Instruction {
         // input like
         // "nop +4"
 
-        let parts: Vec<&str> = s.split(" ").collect();
+        let parts: Vec<&str> = s.split(' ').collect();
 
         if parts.len() != 2 {
-            return Err(ParseInstructionError::InvalidFormat);
+            return Err(ParseInstructionError::Format);
         }
 
         // parts[0]: "nop"
@@ -195,10 +200,10 @@ impl FromStr for Instruction {
 
         let op: Operation = parts[0]
             .parse()
-            .map_err(|_| ParseInstructionError::InvalidOperation)?;
+            .map_err(|_| ParseInstructionError::Operation)?;
         let arg: i32 = parts[1]
             .parse()
-            .map_err(|_| ParseInstructionError::InvalidArgument)?;
+            .map_err(|_| ParseInstructionError::Argument)?;
 
         Ok(Instruction::new(op, arg))
     }
@@ -206,9 +211,9 @@ impl FromStr for Instruction {
 
 #[derive(Debug)]
 enum ParseInstructionError {
-    InvalidFormat,
-    InvalidOperation,
-    InvalidArgument,
+    Format,
+    Operation,
+    Argument,
 }
 
 #[derive(Debug, Clone, PartialEq, Copy)]
