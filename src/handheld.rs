@@ -39,7 +39,7 @@ impl Handheld {
     /// Executes the next instruction (starting at 0)
     pub fn step(&mut self) {
         let current_instruction = &self.instructions[self.curr];
-        match (&current_instruction.op, current_instruction.arg) {
+        match (current_instruction.op(), current_instruction.arg()) {
             (Operation::Acc, arg) => {
                 self.add_to_acc(arg);
                 self.curr += 1;
@@ -58,7 +58,7 @@ impl Handheld {
     }
 
     /// Step forward through instructions until termination (next instruction does not exist)
-    /// 
+    ///
     /// # Returns
     /// * The value in the `accumulator` if termination was successful
     /// * An empty error if any instruction is executed twice (infinite loop)
