@@ -5,6 +5,7 @@ pub mod passport;
 pub mod seating;
 pub mod questions;
 pub mod bags;
+pub mod xmas;
 
 use std::{
     fs::File,
