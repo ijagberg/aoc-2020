@@ -5,5 +5,5 @@ authors = ["Isak Jägberg <ijagberg@gmail.com>"]
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
+grid = { git = "https://github.com/ijagberg/grid", branch = "main" }

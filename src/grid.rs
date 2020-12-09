@@ -1,59 +1,6 @@
 use std::convert::TryFrom;
 
-/// A two dimensional grid
-pub struct Grid<T> {
-    width: usize,
-    height: usize,
-    cells: Vec<T>,
-}
-
-impl<T> Grid<T> {
-    /// Constructs a new `Grid`
-    ///
-    /// # Panics
-    /// If `width * height != cells.len()`
-    pub fn new(width: usize, height: usize, cells: Vec<T>) -> Self {
-        assert!(width * height == cells.len());
-        Self {
-            width,
-            height,
-            cells,
-        }
-    }
-
-    /// Returns the width of the grid (number of columns)
-    pub fn width(&self) -> usize {
-        self.width
-    }
-
-    /// Returns the height of the grid (number of rows)
-    pub fn height(&self) -> usize {
-        self.height
-    }
-
-    /// Attempt to get the item in row `row`, column `col`
-    ///
-    /// Returns `None` if `row` or `col` is outside the grid (less than 0, larger than the height or width of the grid)
-    pub fn get<Idx>(&self, row: Idx, col: Idx) -> Option<&T>
-    where
-        usize: TryFrom<Idx>,
-    {
-        let row = usize::try_from(row).ok()?;
-        let col = usize::try_from(col).ok()?;
-
-        let linear_idx = self.linear_idx(row, col)?;
-
-        Some(&self.cells[linear_idx])
-    }
-
-    fn linear_idx(&self, row: usize, col: usize) -> Option<usize> {
-        if row >= self.height() || col >= self.width() {
-            None
-        } else {
-            Some(row * self.width() + col)
-        }
-    }
-}
+use grid::Grid;
 
 pub fn parse_toboggan_map(lines: &[String]) -> TobogganMap {
     let height = lines.len();
@@ -124,7 +71,7 @@ impl<T> InfiniteGrid<T> {
     pub fn get(&self, row: usize, col: usize) -> Option<&T> {
         let col = col % self.grid().width();
 
-        self.grid().get(row, col)
+        self.grid().get((col, row))
     }
 
     pub fn iter_from(&self, row: usize, col: usize, right: usize, down: usize) -> SlopeIter<T> {
