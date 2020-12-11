@@ -410,4 +410,38 @@ mod tests {
             );
         }
     }
+
+    mod day11 {
+        use seating::ferry;
+
+        use super::*;
+
+        fn solve_day11_part1_from_file(file: &str) -> usize {
+            let seating = ferry::parse_ferry_seating_from_input_file(file);
+
+            let stable = seating.step_until_stable_neighbor();
+
+            stable.count_occupied_seats()
+        }
+
+        fn solve_day11_part2_from_file(file: &str) -> usize {
+            let seating = ferry::parse_ferry_seating_from_input_file(file);
+
+            let stable = seating.step_until_stable_vision();
+
+            stable.count_occupied_seats()
+        }
+
+        #[test]
+        fn day11_part1() {
+            assert_eq!(solve_day11_part1_from_file("inputs/day11_example.txt"), 37);
+            assert_eq!(solve_day11_part1_from_file("inputs/day11.txt"), 2476);
+        }
+
+        #[test]
+        fn day11_part2() {
+            assert_eq!(solve_day11_part2_from_file("inputs/day11_example.txt"), 26);
+            assert_eq!(solve_day11_part2_from_file("inputs/day11.txt"), 2257);
+        }
+    }
 }
