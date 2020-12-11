@@ -179,17 +179,4 @@ mod tests {
             )
         );
     }
-
-    #[test]
-    fn solve_from_input_file_test() {
-        let rules = get_rules_from_file("inputs/day7_example.txt");
-        assert_eq!(rules.how_many_can_contain("shiny gold"), 4)
-    }
-
-    #[test]
-    fn count_bags_inside_test() {
-        let rules = get_rules_from_file("inputs/day7_example2.txt");
-
-        assert_eq!(rules.count_bags_inside("shiny gold"), 126);
-    }
 }

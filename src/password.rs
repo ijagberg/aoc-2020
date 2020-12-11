@@ -93,7 +93,7 @@ pub fn parse_toboggan_policy_and_password(
     }
 
     let policy = TobogganPasswordPolicy::from_str(parts[0])?;
-    let password = parts[1].to_owned();
+    let password = parts[1].trim().to_owned();
 
     Ok((policy, password))
 }
@@ -176,7 +176,7 @@ impl TobogganPasswordPolicy {
 
 impl From<PasswordPolicy> for TobogganPasswordPolicy {
     fn from(policy: PasswordPolicy) -> Self {
-        Self { policy }
+        Self::new(policy.a() as usize, policy.b() as usize, policy.letter())
     }
 }
 

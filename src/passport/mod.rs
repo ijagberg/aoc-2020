@@ -502,13 +502,4 @@ mod tests {
             Field::IssueYear(IssueYear(2017))
         );
     }
-
-    #[test]
-    fn invalid_passports_from_example_file_test() {
-        let valid_passports: Vec<Passport> =
-            read_valid_passports_from_file("inputs/day4_invalid_example.txt")
-                .into_iter()
-                .collect();
-        assert!(valid_passports.is_empty());
-    }
 }
