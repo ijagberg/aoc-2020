@@ -1,4 +1,4 @@
-use std::{convert::TryFrom, fmt::Display};
+use std::{cmp::Ordering, convert::TryFrom, fmt::Display};
 
 use grid::{Grid, GridIndex};
 
@@ -174,35 +174,39 @@ impl FerrySeating {
         idx: GridIndex,
         (col_offset, row_offset): (isize, isize),
     ) -> Option<GridIndex> {
-        let eval_col = if col_offset < 0 {
-            if idx.column() > 0 {
-                Some(idx.column() - col_offset.abs() as usize)
-            } else {
-                None
+        let eval_col = match col_offset.cmp(&0) {
+            Ordering::Less => {
+                if idx.column() > 0 {
+                    Some(idx.column() - col_offset.abs() as usize)
+                } else {
+                    None
+                }
             }
-        } else if col_offset > 0 {
-            if idx.column() < self.grid.width() - 1 {
-                Some(idx.column() + col_offset as usize)
-            } else {
-                None
+            Ordering::Equal => Some(idx.column()),
+            Ordering::Greater => {
+                if idx.column() < self.grid.width() - 1 {
+                    Some(idx.column() + col_offset as usize)
+                } else {
+                    None
+                }
             }
-        } else {
-            Some(idx.column())
         };
-        let eval_row = if row_offset < 0 {
-            if idx.row() > 0 {
-                Some(idx.row() - row_offset.abs() as usize)
-            } else {
-                None
+        let eval_row = match row_offset.cmp(&0) {
+            Ordering::Less => {
+                if idx.row() > 0 {
+                    Some(idx.row() - row_offset.abs() as usize)
+                } else {
+                    None
+                }
             }
-        } else if row_offset > 0 {
-            if idx.row() < self.grid.height() - 1 {
-                Some(idx.row() + row_offset as usize)
-            } else {
-                None
+            Ordering::Equal => Some(idx.row()),
+            Ordering::Greater => {
+                if idx.row() < self.grid.height() - 1 {
+                    Some(idx.row() + row_offset as usize)
+                } else {
+                    None
+                }
             }
-        } else {
-            Some(idx.row())
         };
 
         if let (Some(col), Some(row)) = (eval_col, eval_row) {

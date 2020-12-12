@@ -43,7 +43,7 @@ impl Adapters {
         memo: &mut HashMap<JoltsRating, Option<u64>>,
     ) -> Option<u64> {
         let possible_next: Vec<JoltsRating> = (start.rating() + 1..=start.rating() + 3)
-            .map(|j| JoltsRating::new(j))
+            .map(JoltsRating::new)
             .filter(|j| self.set().contains(&j))
             .collect();
 
@@ -95,11 +95,9 @@ pub fn solve_part2_from_file(file: &str) -> u64 {
     let adapters = get_adapters_from_file(file);
 
     let mut memo = HashMap::new();
-    let ans = adapters
+    adapters
         .arrangements_from(JoltsRating::new(0), &mut memo)
-        .unwrap();
-
-    ans
+        .unwrap()
 }
 
 fn get_adapters_from_file(file: &str) -> Adapters {

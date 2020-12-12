@@ -450,7 +450,7 @@ mod tests {
         use super::*;
 
         fn solve_day12_part1_from_file(file: &str) -> isize {
-            navigation::ship::solve_part1_from_file(file)
+            navigation::ship::solve_day12_part1_from_file(file)
         }
 
         fn solve_day12_part2_from_file(file: &str) -> isize {

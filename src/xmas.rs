@@ -1,3 +1,7 @@
+use std::cmp;
+
+use cmp::Ordering;
+
 pub struct XmasEncryption {
     numbers: Vec<u64>,
 }
@@ -31,10 +35,14 @@ impl XmasEncryption {
             let mut sum = self.numbers[start];
             for next in start + 1..self.numbers.len() {
                 sum += self.numbers[next];
-                if sum > target_sum {
-                    break;
-                } else if sum == target_sum {
-                    return Some(self.numbers[start..=next].iter().copied().collect());
+                match sum.cmp(&target_sum) {
+                    Ordering::Less => {}
+                    Ordering::Equal => {
+                        return Some(self.numbers[start..=next].iter().copied().collect());
+                    }
+                    Ordering::Greater => {
+                        break;
+                    }
                 }
             }
         }
@@ -70,10 +78,7 @@ fn get_xmas_encr_from_file(file: &str) -> XmasEncryption {
         .filter(|l| !l.is_empty())
         .map(|l| l.trim().parse().unwrap())
         .collect();
-
-    let encr = XmasEncryption::new(numbers);
-
-    encr
+    XmasEncryption::new(numbers)
 }
 
 #[cfg(test)]

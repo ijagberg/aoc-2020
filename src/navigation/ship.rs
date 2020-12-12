@@ -51,7 +51,7 @@ impl Ship {
     fn turn_left(&mut self, mut degrees: u32) {
         assert!(degrees % 90 == 0);
 
-        degrees = degrees % 360;
+        degrees %= 360;
         let steps = degrees / 90;
 
         for _ in 0..steps {
@@ -67,7 +67,7 @@ impl Ship {
     fn turn_right(&mut self, mut degrees: u32) {
         assert!(degrees % 90 == 0);
 
-        degrees = degrees % 360;
+        degrees %= 360;
         let steps = degrees / 90;
 
         for _ in 0..steps {
@@ -81,7 +81,13 @@ impl Ship {
     }
 }
 
-pub fn solve_part1_from_file(file: &str) -> isize {
+impl Default for Ship {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+pub fn solve_day12_part1_from_file(file: &str) -> isize {
     let instrs = read_instr_from_file(file);
 
     let mut ship = Ship::new();

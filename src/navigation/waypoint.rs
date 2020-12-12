@@ -37,7 +37,7 @@ impl ShipWithWaypoint {
     fn rotate_waypoint_left(&mut self, mut degrees: u32) {
         assert!(degrees % 90 == 0);
 
-        degrees = degrees % 360;
+        degrees %= 360;
         let steps = degrees / 90;
 
         for _ in 0..steps {
@@ -50,7 +50,7 @@ impl ShipWithWaypoint {
     fn rotate_waypoint_right(&mut self, mut degrees: u32) {
         assert!(degrees % 90 == 0);
 
-        degrees = degrees % 360;
+        degrees %= 360;
         let steps = degrees / 90;
 
         for _ in 0..steps {
