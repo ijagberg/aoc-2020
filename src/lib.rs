@@ -2,6 +2,7 @@ pub mod bags;
 pub mod grid;
 pub mod handheld;
 pub mod jolts;
+pub mod navigation;
 pub mod passport;
 pub mod password;
 pub mod questions;
@@ -442,6 +443,30 @@ mod tests {
         fn day11_part2() {
             assert_eq!(solve_day11_part2_from_file("inputs/day11_example.txt"), 26);
             assert_eq!(solve_day11_part2_from_file("inputs/day11.txt"), 2257);
+        }
+    }
+
+    mod day12 {
+        use super::*;
+
+        fn solve_day12_part1_from_file(file: &str) -> isize {
+            navigation::ship::solve_part1_from_file(file)
+        }
+
+        fn solve_day12_part2_from_file(file: &str) -> isize {
+            navigation::waypoint::solve_day12_part2_from_file(file)
+        }
+
+        #[test]
+        fn day12_part1() {
+            assert_eq!(solve_day12_part1_from_file("inputs/day12_example.txt"), 25);
+            assert_eq!(solve_day12_part1_from_file("inputs/day12.txt"), 362);
+        }
+
+        #[test]
+        fn day12_part2() {
+            assert_eq!(solve_day12_part2_from_file("inputs/day12_example.txt"), 286);
+            assert_eq!(solve_day12_part2_from_file("inputs/day12.txt"), 29895);
         }
     }
 }
