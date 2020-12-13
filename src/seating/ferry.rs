@@ -1,6 +1,6 @@
 use std::{cmp::Ordering, convert::TryFrom, fmt::Display};
 
-use grid::{Grid, GridIndex};
+use simple_grid::{Grid, GridIndex};
 
 const STEPS: [(isize, isize); 8] = [
     (0, 1),   // up

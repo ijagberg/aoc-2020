@@ -80,26 +80,3 @@ fn get_xmas_encr_from_file(file: &str) -> XmasEncryption {
         .collect();
     XmasEncryption::new(numbers)
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    fn example_from_file() -> XmasEncryption {
-        get_xmas_encr_from_file("inputs/day9_example.txt")
-    }
-
-    #[test]
-    fn find_first_test() {
-        let encr = example_from_file();
-
-        assert_eq!(encr.find_invalid_number(5, 5).unwrap(), 127);
-    }
-
-    #[test]
-    fn find_contiguous_sum_test() {
-        let encr = example_from_file();
-
-        assert_eq!(encr.find_contiguous_sum(127).unwrap(), vec![15, 25, 47, 40])
-    }
-}

@@ -1,6 +1,6 @@
 use std::convert::TryFrom;
 
-use grid::Grid;
+use simple_grid::Grid;
 
 pub fn parse_toboggan_map(lines: &[String]) -> TobogganMap {
     let height = lines.len();
