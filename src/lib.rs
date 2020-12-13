@@ -1,4 +1,5 @@
 pub mod bags;
+pub mod bus;
 pub mod grid;
 pub mod handheld;
 pub mod jolts;
@@ -467,6 +468,28 @@ mod tests {
         fn day12_part2() {
             assert_eq!(solve_day12_part2_from_file("inputs/day12_example.txt"), 286);
             assert_eq!(solve_day12_part2_from_file("inputs/day12.txt"), 29895);
+        }
+    }
+
+    mod day13 {
+        use super::*;
+
+        #[test]
+        fn day13_part1() {
+            assert_eq!(
+                bus::solve_day13_part1_from_file("inputs/day13_example.txt"),
+                295
+            );
+            assert_eq!(bus::solve_day13_part1_from_file("inputs/day13.txt"), 2935);
+        }
+
+        #[test]
+        fn day13_part2() {
+            assert_eq!(
+                bus::solve_day13_part2_from_file("inputs/day13_example.txt"),
+                1068781
+            );
+            assert_eq!(bus::solve_day13_part2_from_file("inputs/day13.txt"), 2935);
         }
     }
 }
