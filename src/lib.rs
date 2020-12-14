@@ -1,4 +1,5 @@
 pub mod bags;
+pub mod bitmask;
 pub mod bus;
 pub mod grid;
 pub mod handheld;
@@ -489,7 +490,35 @@ mod tests {
                 bus::solve_day13_part2_from_file("inputs/day13_example.txt"),
                 1068781
             );
-            assert_eq!(bus::solve_day13_part2_from_file("inputs/day13.txt"), 2935);
+            assert_eq!(bus::solve_day13_part2_from_file("inputs/day13.txt"), 836024966345345);
+        }
+    }
+
+    mod day14 {
+        use super::*;
+
+        #[test]
+        fn day14_part1() {
+            assert_eq!(
+                bitmask::solve_day14_part1_from_file("inputs/day14_example.txt"),
+                165
+            );
+            assert_eq!(
+                bitmask::solve_day14_part1_from_file("inputs/day14.txt"),
+                5875750429995
+            );
+        }
+
+        #[test]
+        fn day14_part2() {
+            assert_eq!(
+                bitmask::solve_day14_part2_from_file("inputs/day14_example_2.txt"),
+                208
+            );
+            assert_eq!(
+                bitmask::solve_day14_part2_from_file("inputs/day14.txt"),
+                5272149590143
+            );
         }
     }
 }
