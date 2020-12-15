@@ -5,6 +5,7 @@ pub mod grid;
 pub mod handheld;
 pub mod jolts;
 pub mod navigation;
+pub mod number_game;
 pub mod passport;
 pub mod password;
 pub mod questions;
@@ -490,7 +491,10 @@ mod tests {
                 bus::solve_day13_part2_from_file("inputs/day13_example.txt"),
                 1068781
             );
-            assert_eq!(bus::solve_day13_part2_from_file("inputs/day13.txt"), 836024966345345);
+            assert_eq!(
+                bus::solve_day13_part2_from_file("inputs/day13.txt"),
+                836024966345345
+            );
         }
     }
 
@@ -518,6 +522,38 @@ mod tests {
             assert_eq!(
                 bitmask::solve_day14_part2_from_file("inputs/day14.txt"),
                 5272149590143
+            );
+        }
+    }
+
+    mod day15 {
+        use super::*;
+
+        #[test]
+        fn day15_part1() {
+            assert_eq!(
+                number_game::solve_day15_part1_from_file("inputs/day15_example.txt", 10),
+                0
+            );
+            assert_eq!(
+                number_game::solve_day15_part1_from_file("inputs/day15_example_2.txt", 2020),
+                1
+            );
+            assert_eq!(
+                number_game::solve_day15_part1_from_file("inputs/day15_example_3.txt", 2020),
+                10
+            );
+            assert_eq!(
+                number_game::solve_day15_part1_from_file("inputs/day15.txt", 2020),
+                1194
+            );
+        }
+
+        #[test]
+        fn day15_part2() {
+            assert_eq!(
+                number_game::solve_day15_part1_from_file("inputs/day15.txt", 30000000),
+                1194
             );
         }
     }
