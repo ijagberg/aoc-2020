@@ -4,6 +4,7 @@ pub mod bus;
 pub mod grid;
 pub mod handheld;
 pub mod jolts;
+pub mod life;
 pub mod navigation;
 pub mod number_game;
 pub mod passport;
@@ -601,6 +602,34 @@ mod tests {
             assert_eq!(
                 tickets::solve_day16_part2_from_file("inputs/day16.txt"),
                 21956
+            );
+        }
+    }
+
+    mod day17 {
+        use super::*;
+
+        #[test]
+        fn day17_part1() {
+            assert_eq!(
+                life::solve_day17_part1_from_file("inputs/day17_example.txt"),
+                112
+            );
+            assert_eq!(
+                life::solve_day17_part1_from_file("inputs/day17.txt"),
+                317
+            );
+        }
+
+        #[test]
+        fn day17_part2() {
+            assert_eq!(
+                life::solve_day17_part2_from_file("inputs/day17_example.txt"),
+                848
+            );
+            assert_eq!(
+                life::solve_day17_part2_from_file("inputs/day17.txt"),
+                1692
             );
         }
     }
