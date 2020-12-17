@@ -10,13 +10,32 @@ pub mod passport;
 pub mod password;
 pub mod questions;
 pub mod seating;
+pub mod tickets;
 pub mod xmas;
 
 use std::{
+    collections::HashSet,
     fs::File,
+    hash::Hash,
     io::{self, BufRead},
     path::Path,
 };
+
+pub fn intersection_many<T>(mut sets: Vec<HashSet<T>>) -> HashSet<T>
+where
+    T: Eq + Hash,
+{
+    if sets.is_empty() {
+        HashSet::new()
+    } else {
+        let set1 = sets.swap_remove(0);
+        let intersection = set1
+            .into_iter()
+            .filter(|k| sets.iter().all(|s| s.contains(k)))
+            .collect();
+        intersection
+    }
+}
 
 /// Returns an iterator over the lines of a given file
 pub fn read_lines_from_file<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
@@ -554,6 +573,34 @@ mod tests {
             assert_eq!(
                 number_game::solve_day15_part1_from_file("inputs/day15.txt", 30000000),
                 1194
+            );
+        }
+    }
+
+    mod day16 {
+        use super::*;
+
+        #[test]
+        fn day16_part1() {
+            assert_eq!(
+                tickets::solve_day16_part1_from_file("inputs/day16_example.txt"),
+                71
+            );
+            assert_eq!(
+                tickets::solve_day16_part1_from_file("inputs/day16.txt"),
+                21956
+            );
+        }
+
+        #[test]
+        fn day16_part2() {
+            assert_eq!(
+                tickets::solve_day16_part2_from_file("inputs/day16_example.txt"),
+                1
+            );
+            assert_eq!(
+                tickets::solve_day16_part2_from_file("inputs/day16.txt"),
+                21956
             );
         }
     }
